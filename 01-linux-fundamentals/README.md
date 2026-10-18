@@ -1,4 +1,6 @@
-## 1. What Linux Is & How It's Structured
+<h1 align="center">Linux Fundamentals & System Structure</h1>
+
+## A. What Linux Is & How It's Structured
 
 Linux is a family of open-source operating systems built around the **Linux kernel**. The kernel manages hardware (CPU, memory, devices) and exposes it to programs. Around the kernel sits userspace: shells, utilities, libraries, and applications. A **distribution** (distro) bundles the kernel with a package manager and default tools — e.g. Ubuntu/Debian, Fedora/RHEL/CentOS, Arch, SUSE.
 
@@ -24,7 +26,7 @@ id                     # current user's UID, GID, groups
 
 ---
 
-## 2. The Shell & Terminal Basics
+## B. The Shell & Terminal Basics
 
 The **shell** is the program that interprets your typed commands. The most common is **Bash** (`/bin/bash`); others include `zsh`, `sh`, `fish`. A **terminal** is the window/app that hosts the shell.
 
@@ -79,7 +81,7 @@ Command line editing shortcuts (work in Bash): `Ctrl+A` start of line, `Ctrl+E` 
 
 ---
 
-## 3. Filesystem Hierarchy (Where Things Live)
+## C. Filesystem Hierarchy (Where Things Live)
 
 Linux uses a single tree rooted at `/`. There are no drive letters; devices are mounted into the tree.
 
