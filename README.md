@@ -26,4 +26,12 @@ A concept-by-concept reference covering the Linux fundamentals you need, with co
 
 10. [Archiving, Kernel & Hardware](./10-archiving-kernel-hardware/)
 
+11. [General Troubleshooting Method (Master Checklist)](./11-general-troubleshooting/)
+
+---
+
+### Quick Learning Path
+
+If you're starting fresh, work through the concepts in roughly this order: shell basics and navigation (1) → files and text tools (2) → users and permissions (3) → processes and packages (4) → then branch into the admin topics you need → networking (6) → services (7) → storage/volumes (5) → and scripting (9) to tie it together. Practice each section in a real terminal (a VM or a cheap cloud instance) rather than just reading; the commands stick only when you break and fix things yourself.
+
 ---
