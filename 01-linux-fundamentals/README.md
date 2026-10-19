@@ -1,4 +1,4 @@
-<h1 align="center">Linux Fundamentals & System Structure</h1>
+# 1. Linux Fundamentals & System Structure
 
 ## A. What Linux Is & How It's Structured
 
