@@ -129,3 +129,44 @@ systemctl status mytimer.timer # a specific timer
 **`at` job never fired** — the `atd` service must be running: `systemctl status atd` (or `atd`), and enable it if not.
 
 ---
+
+## C. Boot Process & Runlevels/Targets
+
+Rough boot sequence: **firmware (BIOS/UEFI)** → **bootloader (GRUB)** loads the kernel → **kernel** initializes hardware and mounts root → **init (systemd)** starts services → login prompt.
+
+systemd **targets** replace old SysV **runlevels**:
+
+| Old runlevel | systemd target | Meaning |
+|--------------|----------------|---------|
+| 0 | poweroff.target | Halt |
+| 1 | rescue.target | Single-user/rescue |
+| 3 | multi-user.target | Multi-user, text (servers) |
+| 5 | graphical.target | Multi-user + GUI |
+| 6 | reboot.target | Reboot |
+
+```bash
+systemctl get-default          # current default target
+sudo systemctl set-default multi-user.target   # boot to text mode
+sudo systemctl isolate graphical.target         # switch target now
+who -r                         # current runlevel (legacy view)
+```
+
+GRUB configuration is in `/etc/default/grub`; regenerate with `sudo update-grub` (Debian) or `sudo grub2-mkconfig -o /boot/grub2/grub.cfg` (RHEL). To rescue a broken system, boot into `rescue.target` or add `single` / `init=/bin/bash` to the kernel line in GRUB.
+
+### Troubleshooting
+
+**Get into rescue mode** — at the GRUB menu press `e` to edit the boot entry, find the line starting with `linux`, append `systemd.unit=rescue.target` (or `single`), then `Ctrl+X` to boot. This gives you a root shell to fix things.
+
+**Root filesystem is read-only in rescue mode** — remount it writable before editing: `mount -o remount,rw /`.
+
+**Stuck at the GRUB prompt / no menu** — the bootloader is damaged or config is missing. From a live USB, chroot into the system and reinstall GRUB: `grub-install /dev/sdX` then regenerate the config.
+
+**"kernel panic - not syncing" / can't find root** — often a broken `/etc/fstab` (see Mounting section), a bad initramfs, or the wrong root device. Boot an older kernel from GRUB's advanced options while you fix it.
+
+**Boot hangs on a specific service** — switch to the previous boot's logs after recovery: `journalctl -b -1 -p err`. `systemd-analyze blame` shows what's slow once booted. You can mask a broken service to get past it: `systemctl mask broken.service`.
+
+**Booted into text mode / no GUI** — the default target is wrong, or the display manager failed. `systemctl get-default`; set it back with `sudo systemctl set-default graphical.target` and check `systemctl status gdm`/`sddm`/`lightdm`.
+
+**Forgot root password** — boot with `init=/bin/bash`, `mount -o remount,rw /`, run `passwd`, then `exec /sbin/init` or reboot.
+
+---

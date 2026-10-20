@@ -1,6 +1,6 @@
 # 10. Archiving, Kernel & Hardware
 
-## Archiving & Compression
+## A. Archiving & Compression
 
 **tar** bundles many files into one archive; compression tools (`gzip`, `bzip2`, `xz`, `zip`) shrink them.
 
@@ -47,5 +47,51 @@ Rule of thumb: `.tar.gz` is fast and universal; `.tar.xz` compresses smaller but
 **Extraction fails with "No space left on device"** — the uncompressed data is far bigger than the archive. Check free space with `df -h` before extracting large archives.
 
 **Permissions/owners wrong after extraction** — only root can restore original ownership. Extract as root, or accept that files become owned by you.
+
+---
+
+## B. Kernel Modules & Hardware
+
+The kernel loads **modules** (drivers) on demand. Hardware is inspected with the `ls*` family of commands.
+
+```bash
+lspci                          # PCI devices (GPU, network cards)
+lsusb                          # USB devices
+lscpu                          # CPU details
+lsblk                          # block/storage devices
+lshw                           # comprehensive hardware listing (root)
+dmidecode                      # BIOS/hardware info from firmware (root)
+
+# Kernel modules
+lsmod                          # currently loaded modules
+modinfo module_name            # details about a module
+sudo modprobe module_name      # load a module (and dependencies)
+sudo modprobe -r module_name   # unload a module
+sudo insmod file.ko            # insert a module file directly
+sudo rmmod module_name         # remove a module
+cat /proc/modules              # raw loaded-module list
+
+# Kernel parameters (sysctl)
+sysctl -a                      # all tunable kernel parameters
+sudo sysctl net.ipv4.ip_forward=1   # set one at runtime
+# make permanent in /etc/sysctl.conf or /etc/sysctl.d/
+sudo sysctl -p                 # reload sysctl config
+```
+
+Device files live in `/dev`; kernel and process info are exposed as virtual files under `/proc` and `/sys` (e.g. `cat /proc/cpuinfo`, `cat /proc/meminfo`).
+
+### Troubleshooting
+
+**A device isn't detected** — check kernel messages as you plug it in: `dmesg -w` (or `sudo dmesg | tail`). Confirm it appears on the bus with `lspci`/`lsusb`. No driver message usually means a missing module or firmware.
+
+**"modprobe: FATAL: Module not found"** — the driver isn't installed for your running kernel, or you upgraded the kernel without rebuilding out-of-tree modules (e.g. NVIDIA). Reinstall the matching kernel headers/driver package and reboot.
+
+**Missing firmware warnings in dmesg** — install the `linux-firmware` package (name varies by distro).
+
+**A module won't unload: "Module is in use"** — something depends on it. `lsmod` shows the "Used by" column; unload the dependents first, or stop the device/service using it.
+
+**Hardware works after boot but a setting resets** — runtime `modprobe`/`sysctl` changes aren't persistent. Add module options to `/etc/modprobe.d/`, autoload via `/etc/modules-load.d/`, and kernel params to `/etc/sysctl.d/`.
+
+**Wrong or flaky driver loading** — blacklist it in `/etc/modprobe.d/blacklist.conf` (`blacklist modulename`) and rebuild the initramfs (`update-initramfs -u` or `dracut -f`).
 
 ---
